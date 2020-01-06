@@ -19,9 +19,10 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->integer('won_games');
-            $table->integer('lost_games');
-            $table->integer('draw_games');
+            $table->integer('rating')->default(1500);
+            $table->integer('won_games')->default(0);
+            $table->integer('lost_games')->default(0);
+            $table->integer('draw_games')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });
