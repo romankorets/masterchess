@@ -11,11 +11,21 @@ class CreateGamesTable extends Migration
      *
      * @return void
      */
+
     public function up()
     {
         Schema::create('games', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->timestamps();
+            $table->bigInteger('first_player_id');
+            $table->bigInteger('second_player_id')->nullable();
+            $table->string('first_player_color');
+            $table->string('second_player_color')->nullable();
+            $table->boolean('started')->default(false);
+            $table->boolean('finished')->default(false);
+            $table->json('moves')->default("{ 0 : rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w}");
+            $table->foreign('first_player_id')->references('id')->on('users');
+            $table->foreign('second_player_id')->references('id')->on('users');
+            $table->timestamps('createdAt');
         });
     }
 
