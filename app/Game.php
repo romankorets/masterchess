@@ -11,4 +11,8 @@ class Game extends Model
     protected $casts = [
         'moves' => 'array'
     ];
+
+    public function user(){
+        return $this->belongsTo(User::class, "first_player_id");
+    }
 }
