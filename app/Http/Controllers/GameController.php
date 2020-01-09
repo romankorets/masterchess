@@ -38,18 +38,31 @@ class GameController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $color = $request->get('color');
+        if ($color == 'random'){
+            $color = 'white';
+        }
+
+        $game = Game::create([
+                'first_player_id' => Auth::user()->id,
+                'first_player_color' => $color,
+                'moves' => [
+                    '0' => 'rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w'
+                ]
+            ]
+        );
     }
 
     /**
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function show($id)
     {
-        //
+        $game = Game::findOrFail($id);
+        return view('game.show', ['game' => $game]);
     }
 
     /**
@@ -72,7 +85,9 @@ class GameController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $game = Game::findOrFail($id);
+        $game->fill($request->all());
+        $game->save();
     }
 
     /**
