@@ -23,8 +23,8 @@ class CreateGamesTable extends Migration
             $table->string('second_player_color')->nullable();
             $table->boolean('started')->default(false);
             $table->boolean('finished')->default(false);
-            $table->json('moves')->default("{ 0 : rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w}");
-            $table->timestamps('createdAt');
+            $table->json('moves');
+            $table->timestamp('createdAt');
         });
     }
 
