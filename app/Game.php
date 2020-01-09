@@ -18,7 +18,11 @@ class Game extends Model
         'moves' => 'array'
     ];
 
-    public function user(){
-        return $this->belongsTo(User::class, "first_player_id");
+    public function firstUser(){
+        return $this->belongsTo(User::class, 'first_player_id');
+    }
+
+    public function secondUser(){
+        return $this->belongsTo(User::class, 'second_player_id');
     }
 }
