@@ -38,14 +38,31 @@ class GameController extends Controller
      */
     public function store(Request $request)
     {
-        $color = $request->get('color');
-        if ($color == 'random'){
-            $color = 'white';
+        $firstPlayerColor = $request->get('color');
+        $secondPlayerColor = '';
+        switch ($firstPlayerColor){
+            case 'random':
+                $randomColor = rand(0, 1);
+                if ($randomColor == 0) {
+                    $firstPlayerColor = 'white';
+                    $secondPlayerColor = 'black';
+                } else {
+                    $firstPlayerColor = 'black';
+                    $secondPlayerColor = 'white';
+                }
+                break;
+            case 'white':
+                $secondPlayerColor = 'black';
+                break;
+            case 'black':
+                $secondPlayerColor = 'white';
+                break;
         }
 
         $game = Game::create([
                 'first_player_id' => Auth::user()->id,
-                'first_player_color' => $color,
+                'first_player_color' => $firstPlayerColor,
+                'second_player_color' => $secondPlayerColor,
                 'moves' => [
                     '0' => 'rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w'
                 ]
