@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Game extends Model
 {
-    const CREATED_AT = 'createdAt';
 
     protected $fillable = [
         'first_player_id', 'second_player_id',

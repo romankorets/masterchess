@@ -13,7 +13,8 @@
                             {{ session('status') }}
                         </div>
                     @endif
-
+                    <a class="btn btn-primary" href="{{route('game.create')}}">Create game</a>
+                    <a class="btn btn-primary" href="{{route('game.index')}}">List of games</a>
                     You are logged in!
                 </div>
             </div>

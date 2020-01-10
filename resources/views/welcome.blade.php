@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+        <title>Masterchess</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
@@ -12,6 +12,8 @@
         <!-- Styles -->
         <style>
             html, body {
+                background-image: url("/public/images/bg.jpg");
+                background-size: 100%;
                 background-color: #fff;
                 color: #636b6f;
                 font-family: 'Nunito', sans-serif;
@@ -19,6 +21,7 @@
                 height: 100vh;
                 margin: 0;
             }
+
 
             .full-height {
                 height: 100vh;
@@ -81,7 +84,7 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    Laravel
+                    Masterchess
                 </div>
 
                 <div class="links">

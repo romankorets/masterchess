@@ -16,8 +16,8 @@
                 @foreach($games as $game)
                     <tr>
                         <td>{{$game->id}}</td>
-                        <td>{{$game->first_player_id->name}}</td>
-                        <td>{{$game->first_player_id->rating}}</td>
+                        <td>{{$game->firstUser()->value('name')}}</td>
+                        <td>{{$game->firstUser()->value('rating')}}</td>
                         <td><a class="btn btn-primary" href="{{route('game.show', ['game', $game])}}">Play</a></td>
                     </tr>
                 @endforeach
