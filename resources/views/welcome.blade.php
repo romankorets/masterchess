@@ -12,7 +12,7 @@
         <!-- Styles -->
         <style>
             html, body {
-                background-image: url("/public/images/bg.jpg");
+                background-image: url("/resources/assets/images/bg.jpg");
                 background-size: 100%;
                 background-color: #fff;
                 color: #636b6f;
