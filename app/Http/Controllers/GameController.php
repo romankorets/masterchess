@@ -65,11 +65,12 @@ class GameController extends Controller
                 'first_player_color' => $firstPlayerColor,
                 'second_player_color' => $secondPlayerColor,
                 'moves' => [
-                    '0' => 'rnbqkbnr/pppppppp/11111111/11111111/11111111/11111111/PPPPPPPP/RNBQKBNR w'
+                    ['id' => 0,
+                    'move' => 'rnbqkbnrpppppppp11111111111111111111111111111111PPPPPPPPRNBQKBNR w']
                 ]
             ]
         );
-        return redirect()->route('game.index');
+        return redirect()->route('game.show', ['game' => $game]);
     }
 
     /**
