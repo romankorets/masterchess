@@ -1,8 +1,8 @@
 <template>
     <div class="container">
         <div class="board">
-            <div v-for="(figure, index) in lastMove" :id="'s' + index" class="square" :class="{black: isBlackSquareAt(index), white: !isBlackSquareAt(index)}" >
-                <div class="figure"></div>
+            <div v-for="(figure, index) in lastMove" :id="'s' + index" class="square" :class="{black: isBlackSquareAt(index), white: !isBlackSquareAt(index)}">
+                <div :id = "'f' + figure" class="figure">{{getChessSymbol(figure)}}</div>
             </div>
         </div>
     </div>
@@ -37,18 +37,18 @@
         methods:{
             getChessSymbol: function (figure) {
                 switch (figure) {
-                    case 'K' : return '&#9812;';
-                    case 'Q' : return '&#9813;';
-                    case 'R' : return '&#9814;';
-                    case 'B' : return '&#9815;';
-                    case 'N' : return '&#9816;';
-                    case 'P' : return '&#9817;';
-                    case 'k' : return '&#9818;';
-                    case 'q' : return '&#9819;';
-                    case 'r' : return '&#9820;';
-                    case 'b' : return '&#9821;';
-                    case 'n' : return '&#9822;';
-                    case 'p' : return '&#9823;';
+                    case 'K' : return '♔';
+                    case 'Q' : return '♕';
+                    case 'R' : return '♖';
+                    case 'B' : return '♗';
+                    case 'N' : return '♘';
+                    case 'P' : return '♙';
+                    case 'k' : return '♚';
+                    case 'q' : return '♛';
+                    case 'r' : return '♜';
+                    case 'b' : return '♝';
+                    case 'n' : return '♞';
+                    case 'p' : return '♟';
                     default  : return '';
                 }
             },
@@ -60,7 +60,7 @@
             console.log('Component mounted.');
             console.log('gameId ' + this.game_id);
             console.log('last move = ' + this.lastMove);
-            //console.log('moves ' + this.local_moves[0]['move']);
+            console.log('moves ' + this.local_moves[0]['move']);
         }
     }
 </script>

@@ -1875,40 +1875,40 @@ __webpack_require__.r(__webpack_exports__);
     getChessSymbol: function getChessSymbol(figure) {
       switch (figure) {
         case 'K':
-          return '&#9812;';
+          return '♔';
 
         case 'Q':
-          return '&#9813;';
+          return '♕';
 
         case 'R':
-          return '&#9814;';
+          return '♖';
 
         case 'B':
-          return '&#9815;';
+          return '♗';
 
         case 'N':
-          return '&#9816;';
+          return '♘';
 
         case 'P':
-          return '&#9817;';
+          return '♙';
 
         case 'k':
-          return '&#9818;';
+          return '♚';
 
         case 'q':
-          return '&#9819;';
+          return '♛';
 
         case 'r':
-          return '&#9820;';
+          return '♜';
 
         case 'b':
-          return '&#9821;';
+          return '♝';
 
         case 'n':
-          return '&#9822;';
+          return '♞';
 
         case 'p':
-          return '&#9823;';
+          return '♟';
 
         default:
           return '';
@@ -1921,7 +1921,8 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     console.log('Component mounted.');
     console.log('gameId ' + this.game_id);
-    console.log('last move = ' + this.lastMove); //console.log('moves ' + this.local_moves[0]['move']);
+    console.log('last move = ' + this.lastMove);
+    console.log('moves ' + this.local_moves[0]['move']);
   }
 });
 
@@ -38012,7 +38013,11 @@ var render = function() {
             },
             attrs: { id: "s" + index }
           },
-          [_c("div", { staticClass: "figure" })]
+          [
+            _c("div", { staticClass: "figure", attrs: { id: "f" + figure } }, [
+              _vm._v(_vm._s(_vm.getChessSymbol(figure)))
+            ])
+          ]
         )
       }),
       0
