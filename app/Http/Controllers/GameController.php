@@ -66,7 +66,7 @@ class GameController extends Controller
                 'second_player_color' => $secondPlayerColor,
                 'moves' => [
                     ['id' => 0,
-                    'move' => 'rnbqkbnrpppppppp11111111111111111111111111111111PPPPPPPPRNBQKBNR w']
+                    'move' => 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1']
                 ]
             ]
         );
