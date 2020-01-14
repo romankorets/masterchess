@@ -1853,31 +1853,65 @@ __webpack_require__.r(__webpack_exports__);
   components: {
     chessboard: vue_chessboard__WEBPACK_IMPORTED_MODULE_0__["chessboard"]
   },
-  props: ['gameId', 'moves'],
+  props: ['gameIdPhp', 'movesPhp', 'currentUserIdPhp', 'firstPlayerIdPhp', 'firstPlayerColorPhp'],
   data: function data() {
     return {
+      currentUserId: this.currentUserIdPhp,
       currentMove: '',
       positionInfo: null,
-      game_id: this.gameId,
-      first_player_id: 0,
-      first_player_color: '',
-      second_player_id: 0,
-      second_player_color: '',
-      local_moves: JSON.parse(this.moves),
+      gameId: this.gameIdPhp,
+      firstPlayerId: this.firstPlayerIdPhp,
+      firstPlayerColor: this.firstPlayerColorPhp,
+      localMoves: JSON.parse(this.movesPhp),
+      secondPlayerId: 0,
+      secondPlayerColor: '',
       started: false,
       finished: false
     };
   },
+  computed: {
+    lastMove: function lastMove() {
+      return this.localMoves[this.localMoves.length - 1]['move'];
+    }
+  },
   methods: {
-    showInfo: function showInfo(data) {
+    handleMove: function handleMove(data) {
       this.positionInfo = data;
+      this.currentMove = this.positionInfo.fen;
+
+      if (this.positionInfo.fen !== this.lastMove) {
+        this.localMoves.push({
+          id: this.localMoves.length,
+          move: this.positionInfo.fen
+        });
+        axios.put('/game/' + this.gameId, {
+          'moves': this.localMoves
+        }).then(function (response) {
+          console.log(response.data);
+        });
+      }
+
+      console.log('localMoves = ');
+      console.log(this.localMoves);
+
+      if (!(this.currentUserId === this.firstPlayerId) && !(this.currentUserId === this.secondPlayerId)) {
+        this.$refs.chessboard.board.state.draggable.enabled = false;
+        this.$refs.chessboard.board.state.selectable.enabled = false;
+      }
+
+      console.log('Current userId = ' + this.currentUserId);
+      console.log('MovesPHP = ' + this.movesPhp);
       console.log(data);
     }
   },
   mounted: function mounted() {
     console.log('Component mounted.');
-    console.log('gameId ' + this.game_id);
-    console.log();
+    console.log('gameId = ' + this.gameId);
+    this.currentMove = this.lastMove;
+  },
+  created: function created() {
+    this.localMoves = JSON.parse(this.movesPhp);
+    this.currentMove = this.localMoves[this.localMoves.length - 1]['move'];
   }
 });
 
@@ -37992,8 +38026,9 @@ var render = function() {
     { staticClass: "container" },
     [
       _c("chessboard", {
+        ref: "chessboard",
         attrs: { fen: _vm.currentMove },
-        on: { onMove: _vm.showInfo }
+        on: { onMove: _vm.handleMove }
       })
     ],
     1
