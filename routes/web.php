@@ -21,3 +21,5 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::resource('game', 'GameController',
     ['except' => ['edit']]);
+
+Route::get('/get-game/{id}', 'GameController@getGame');

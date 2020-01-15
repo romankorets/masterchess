@@ -97,6 +97,22 @@ class GameController extends Controller
     }
 
     /**
+     * Return data to update game
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getGame($id)
+    {
+        $game = Game::findOrFail($id);
+        return response()->json([
+            'firstPlayerId' => $game->first_player_id,
+            'secondPlayerId' => $game->second_player_id,
+            'moves' => $game->moves,
+        ]);
+    }
+
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
