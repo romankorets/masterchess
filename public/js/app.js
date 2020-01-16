@@ -1863,27 +1863,22 @@ __webpack_require__.r(__webpack_exports__);
       firstPlayerId: this.firstPlayerIdPhp,
       firstPlayerColor: this.firstPlayerColorPhp,
       localMoves: JSON.parse(this.movesPhp),
-      secondPlayerId: 4,
+      secondPlayerId: 0,
       secondPlayerColor: '',
       started: false,
       finished: false,
       orientation: 'white',
-      isPositionRefresh: null
+      timer: null
     };
   },
   watch: {
-    positionInfo: function positionInfo(newPositionInfo) {
-      if (this.checkIfCurrentUserHasTurn(newPositionInfo.turn)) {
-        this.enableBoard();
-      } else this.disableBoard();
-    },
-    isPositionRefresh: function isPositionRefresh(value) {
-      if (value === false) {
-        setTimeout(this.waitingForOpponentMove, 10000);
+    secondPlayerId: function secondPlayerId(newPlayer) {
+      if (this.secondPlayerId != 0) {
+        this.started = true;
       }
     },
-    turnColor: function turnColor(value) {
-      if (this.checkIfCurrentUserHasTurn(value)) {
+    positionInfo: function positionInfo(newPositionInfo) {
+      if (this.checkIfCurrentUserHasTurn(newPositionInfo.turn)) {
         this.enableBoard();
       } else this.disableBoard();
     }
@@ -1896,7 +1891,7 @@ __webpack_require__.r(__webpack_exports__);
   methods: {
     handleMove: function handleMove(data) {
       if (this.checkIfCurrentUserIsPlayer()) {
-        this.disableBoard();
+        this.enableBoard();
       }
 
       this.positionInfo = data;
@@ -1909,19 +1904,18 @@ __webpack_require__.r(__webpack_exports__);
           move: this.positionInfo.fen
         });
         axios.put('/game/' + this.gameId, {
-          'moves': this.localMoves
+          'moves': this.localMoves,
+          'started': this.started,
+          'finished': this.finished
         }).then(function (response) {
           console.log(response.data);
         });
-      } // while(!this.isPositionRefresh){
-      //     setTimeout('this.waitingForOpponentMove()', 3000);
-      // }
-      //this.waitingForOpponentMove();
-
+      }
 
       console.log('localMoves = ');
       console.log(this.localMoves);
       console.log('Current userId = ' + this.currentUserId);
+      console.log('started = ' + this.started);
       console.log('First player id = ' + this.firstPlayerId);
       console.log('Second player id = ' + this.secondPlayerId);
       console.log('First player color = ' + this.firstPlayerColor);
@@ -1932,18 +1926,13 @@ __webpack_require__.r(__webpack_exports__);
       console.log('Is current player has turn = ' + this.checkIfCurrentUserHasTurn(this.positionInfo.turn));
     },
     getCurrentUserColor: function getCurrentUserColor() {
-      switch (this.currentUserId) {
-        case this.firstPlayerId:
-          return this.firstPlayerColor;
-
-        case this.secondPlayerId:
-          return this.secondPlayerColor;
-
-        default:
-          return 'white';
-      }
+      if (this.currentUserId == this.firstPlayerId) {
+        return this.firstPlayerColor;
+      } else if (this.currentUserId == this.secondPlayerId) {
+        return this.secondPlayerColor;
+      } else return 'white';
     },
-    waitingForOpponentMove: function waitingForOpponentMove() {
+    updateData: function updateData() {
       var _this = this;
 
       axios.get('/get-game/' + this.gameId).then(function (response) {
@@ -1955,7 +1944,7 @@ __webpack_require__.r(__webpack_exports__);
         } else {
           console.log(response.data);
           _this.localMoves = response.data.moves;
-          _this.isPositionRefresh = true;
+          _this.currentMove = _this.lastMove;
         }
       });
     },
@@ -1968,38 +1957,61 @@ __webpack_require__.r(__webpack_exports__);
       this.$refs.chessboard.board.state.selectable.enabled = true;
     },
     checkIfCurrentUserIsPlayer: function checkIfCurrentUserIsPlayer() {
-      return this.currentUserId !== this.firstPlayerId && this.currentUserId !== this.secondPlayerId;
+      return this.currentUserId == this.firstPlayerId || this.currentUserId == this.secondPlayerId;
     },
     checkIfCurrentUserHasTurn: function checkIfCurrentUserHasTurn(currentColorTurn) {
-      switch (this.currentUserId) {
-        case this.firstPlayerId:
-          return this.firstPlayerColor === currentColorTurn;
-
-        case this.secondPlayerId:
-          return this.secondPlayerColor === currentColorTurn;
-
-        default:
-          return false;
-      }
+      if (this.currentUserId == this.firstPlayerId) {
+        return this.firstPlayerColor == currentColorTurn;
+      } else if (this.currentUserId == this.secondPlayerId) {
+        return this.secondPlayerColor == currentColorTurn;
+      } else return false;
     },
     setRightOrientationByPlayerId: function setRightOrientationByPlayerId(PlayerId) {
-      switch (PlayerId) {
-        case this.firstPlayerId:
-          if (this.firstPlayerColorPhp === 'white') {
-            this.orientation = 'white';
-          } else this.orientation = 'black';
+      if (PlayerId == this.firstPlayerId) {
+        if (this.firstPlayerColor == 'black' && 'white' == this.getBoardOrientation()) {
+          this.flipBoard();
+          this.orientation = 'black';
+        } else this.orientation = 'white';
+      } else if (PlayerId == this.secondPlayerId) {
+        if (this.secondPlayerColor == 'black' && 'white' == this.getBoardOrientation()) {
+          this.flipBoard();
+          this.orientation = 'black';
+        } else this.orientation = 'white';
+      }
+    },
+    getBoardOrientation: function getBoardOrientation() {
+      return this.$refs.chessboard.board.state.orientation;
+    },
+    flipBoard: function flipBoard() {
+      this.$refs.chessboard.board.toggleOrientation();
+    },
+    setColorToSecondPlayer: function setColorToSecondPlayer() {
+      if (this.firstPlayerColor == 'white') {
+        this.secondPlayerColor = 'black';
+      } else this.secondPlayerColor = 'white';
+    },
+    setSecondPlayer: function setSecondPlayer() {
+      if (this.currentUserId != this.firstPlayerId && this.secondPlayerId == 0) {
+        this.secondPlayerId = this.currentUserId;
+      }
 
-          break;
+      axios.put('/game/' + this.gameId, {
+        'second_player_id': this.secondPlayerId
+      }).then(function (response) {
+        console.log(response.data);
+      });
+    },
+    tryToStartGame: function tryToStartGame() {
+      if (this.secondPlayerId != 0) {
+        this.started = true;
+      }
 
-        case this.secondPlayerId:
-          if (this.secondPlayerColor === 'white') {
-            this.orientation = 'white';
-          } else this.orientation = 'black';
-
-          break;
-
-        default:
-          this.orientation = 'white';
+      if (this.started == true) {
+        axios.put('/game/' + this.gameId, {
+          'started': this.started
+        }).then(function (response) {
+          console.log(response.data);
+        });
       }
     }
   },
@@ -2007,20 +2019,23 @@ __webpack_require__.r(__webpack_exports__);
     console.log('Component mounted.');
     console.log('gameId = ' + this.gameId);
     console.log('Chessboard = ');
-    console.log(this.$refs.chessboard); //this.currentMove = this.lastMove;
+    console.log(this.$refs.chessboard);
+    this.setRightOrientationByPlayerId(this.currentUserId);
+
+    if (this.checkIfCurrentUserHasTurn(this.$refs.chessboard.board.state.turnColor)) {
+      this.enableBoard();
+    } else this.disableBoard();
+
+    this.timer = setInterval(this.updateData, 1000);
   },
   created: function created() {
-    // defining last position to the board
+    this.setSecondPlayer();
+    this.tryToStartGame(); // defining last position to the board
+
     this.localMoves = JSON.parse(this.movesPhp);
     this.currentMove = this.localMoves[this.localMoves.length - 1]['move']; // defining color to second player
 
-    if (this.firstPlayerColor === 'white') {
-      this.secondPlayerColor = 'black';
-    } else this.secondPlayerColor = 'white'; // setting right board orientation, white by default
-
-
-    this.setRightOrientationByPlayerId(this.currentUserId);
-    console.log('Orientation' + this.orientation);
+    this.setColorToSecondPlayer();
   }
 });
 

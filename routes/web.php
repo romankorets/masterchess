@@ -20,6 +20,6 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::resource('game', 'GameController',
-    ['except' => ['edit']]);
+    ['except' => ['edit']])->middleware('auth');
 
-Route::get('/get-game/{id}', 'GameController@getGame');
+Route::get('/get-game/{id}', 'GameController@getGame')->middleware('auth');

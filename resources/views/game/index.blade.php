@@ -18,7 +18,7 @@
                         <td>{{$game->id}}</td>
                         <td>{{$game->firstUser()->value('name')}}</td>
                         <td>{{$game->firstUser()->value('rating')}}</td>
-                        <td><a class="btn btn-primary" href="{{route('game.show', ['game', $game])}}">Play</a></td>
+                        <td><a class="btn btn-primary" href="{{route('game.show', $game->id)}}">Play</a></td>
                     </tr>
                 @endforeach
             </tbody>

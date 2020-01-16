@@ -1,6 +1,6 @@
 <template>
     <div class="container" >
-        <chessboard ref="chessboard" @onMove="handleMove" :fen="currentMove" :orientation="orientation" />
+        <chessboard ref="chessboard" @onMove="handleMove" :fen="currentMove" :orientation="orientation"/>
     </div>
 </template>
 
@@ -25,40 +25,36 @@
                 firstPlayerId: this.firstPlayerIdPhp,
                 firstPlayerColor: this.firstPlayerColorPhp,
                 localMoves: JSON.parse(this.movesPhp),
-                secondPlayerId: 4,
+                secondPlayerId: 0,
                 secondPlayerColor: '',
                 started: false,
                 finished: false,
                 orientation: 'white',
-                isPositionRefresh: null
+                timer : null
             }
         },
         watch: {
-            positionInfo: function (newPositionInfo){
-                if(this.checkIfCurrentUserHasTurn(newPositionInfo.turn )){
-                    this.enableBoard();
-                } else this.disableBoard();
-            },
-            isPositionRefresh: function (value) {
-                if (value === false){
-                    setTimeout(this.waitingForOpponentMove, 10000);
+            secondPlayerId: function(newPlayer){
+                if (this.secondPlayerId != 0){
+                    this.started = true;
                 }
             },
-            turnColor: function(value){
-                if (this.checkIfCurrentUserHasTurn(value)){
+            positionInfo: function (newPositionInfo){
+                if(this.checkIfCurrentUserHasTurn(newPositionInfo.turn)){
                     this.enableBoard();
                 } else this.disableBoard();
-            }
+            },
         },
         computed:{
             lastMove: function () {
                 return this.localMoves[this.localMoves.length - 1]['move'];
             }
         },
+
         methods:{
             handleMove(data){
                 if (this.checkIfCurrentUserIsPlayer()){
-                    this.disableBoard();
+                    this.enableBoard();
                 }
                 this.positionInfo = data;
                 this.isPositionRefresh = false;
@@ -69,19 +65,17 @@
                         move : this.positionInfo.fen
                     });
                     axios.put('/game/' + this.gameId,{
-                        'moves': this.localMoves
+                        'moves': this.localMoves,
+                        'started': this.started,
+                        'finished': this.finished
                     }).then((response => {
                         console.log(response.data)
                     }));
-
                 }
-                // while(!this.isPositionRefresh){
-                //     setTimeout('this.waitingForOpponentMove()', 3000);
-                // }
-                //this.waitingForOpponentMove();
                 console.log('localMoves = ');
                 console.log(this.localMoves);
                 console.log('Current userId = ' + this.currentUserId);
+                console.log('started = ' + this.started);
                 console.log('First player id = ' + this.firstPlayerId);
                 console.log('Second player id = ' + this.secondPlayerId);
                 console.log('First player color = ' + this.firstPlayerColor);
@@ -93,17 +87,14 @@
             },
 
             getCurrentUserColor(){
-                switch (this.currentUserId) {
-                    case this.firstPlayerId :
-                        return this.firstPlayerColor;
-                    case this.secondPlayerId :
-                        return this.secondPlayerColor;
-                    default:
-                        return 'white';
-                }
+                if(this.currentUserId == this.firstPlayerId){
+                    return this.firstPlayerColor;
+                } else if(this.currentUserId == this.secondPlayerId){
+                    return this.secondPlayerColor;
+                } else return 'white';
             },
 
-            waitingForOpponentMove(){
+            updateData(){
                     axios.get('/get-game/' + this.gameId).then(response => {
                             this.secondPlayerId = response.data.secondPlayerId;
                             if (this.localMoves === response.data.moves) {
@@ -112,7 +103,7 @@
                             } else {
                                 console.log(response.data);
                                 this.localMoves = response.data.moves;
-                                this.isPositionRefresh = true;
+                                this.currentMove = this.lastMove;
                             }
                         }
                     )
@@ -129,56 +120,85 @@
             },
 
             checkIfCurrentUserIsPlayer(){
-                return (this.currentUserId !== this.firstPlayerId) && (this.currentUserId !== this.secondPlayerId);
+                return (this.currentUserId == this.firstPlayerId) || (this.currentUserId == this.secondPlayerId);
             },
 
             checkIfCurrentUserHasTurn(currentColorTurn){
-                switch (this.currentUserId) {
-                    case this.firstPlayerId :
-                        return this.firstPlayerColor === currentColorTurn;
-                    case this.secondPlayerId :
-                        return this.secondPlayerColor === currentColorTurn;
-                    default:
-                        return false;
+                if(this.currentUserId == this.firstPlayerId){
+                    return this.firstPlayerColor == currentColorTurn;
+                } else if (this.currentUserId == this.secondPlayerId){
+                    return this.secondPlayerColor == currentColorTurn;
+                } else return false;
+            },
+
+            setRightOrientationByPlayerId(PlayerId){
+                if(PlayerId == this.firstPlayerId){
+                    if (this.firstPlayerColor == 'black' && 'white' == this.getBoardOrientation()){
+                        this.flipBoard();
+                        this.orientation = 'black';
+                    } else this.orientation = 'white';
+                } else if(PlayerId == this.secondPlayerId){
+                    if(this.secondPlayerColor == 'black' && 'white' == this.getBoardOrientation()){
+                        this.flipBoard();
+                        this.orientation = 'black';
+                    } else this.orientation = 'white';
                 }
             },
-            setRightOrientationByPlayerId(PlayerId){
-                switch (PlayerId) {
-                    case this.firstPlayerId :
-                        if (this.firstPlayerColorPhp === 'white'){
-                            this.orientation = 'white';
-                        } else this.orientation = 'black';
-                        break;
-                    case this.secondPlayerId :
-                        if(this.secondPlayerColor === 'white'){
-                            this.orientation = 'white';
-                        } else this.orientation = 'black';
-                        break;
-                    default :
-                        this.orientation = 'white';
+            getBoardOrientation(){
+                return this.$refs.chessboard.board.state.orientation;
+            },
+
+            flipBoard(){
+                this.$refs.chessboard.board.toggleOrientation();
+            },
+
+            setColorToSecondPlayer(){
+                if(this.firstPlayerColor == 'white'){
+                    this.secondPlayerColor = 'black';
+                } else this.secondPlayerColor = 'white';
+            },
+            setSecondPlayer(){
+                if(this.currentUserId != this.firstPlayerId && this.secondPlayerId == 0){
+                    this.secondPlayerId = this.currentUserId;
+                }
+                axios.put('/game/' + this.gameId,{
+                    'second_player_id': this.secondPlayerId,
+                }).then((response => {
+                    console.log(response.data)
+                }));
+            },
+            tryToStartGame(){
+                if (this.secondPlayerId != 0){
+                    this.started = true;
+                }
+                if(this.started == true){
+                    axios.put('/game/' + this.gameId,{
+                        'started': this.started,
+                    }).then((response => {
+                        console.log(response.data)
+                    }));
                 }
             }
-
         },
         mounted() {
             console.log('Component mounted.');
             console.log('gameId = ' + this.gameId);
             console.log('Chessboard = ');
             console.log(this.$refs.chessboard);
-            //this.currentMove = this.lastMove;
-
+            this.setRightOrientationByPlayerId(this.currentUserId);
+            if (this.checkIfCurrentUserHasTurn(this.$refs.chessboard.board.state.turnColor)){
+                this.enableBoard();
+            } else this.disableBoard();
+            this.timer = setInterval(this.updateData, 1000);
         },
         created() {
+            this.setSecondPlayer();
+            this.tryToStartGame();
             // defining last position to the board
             this.localMoves = JSON.parse(this.movesPhp);
             this.currentMove = this.localMoves[this.localMoves.length - 1]['move'];
             // defining color to second player
-            if(this.firstPlayerColor === 'white'){
-                this.secondPlayerColor = 'black';
-            } else this.secondPlayerColor = 'white';
-            // setting right board orientation, white by default
-            this.setRightOrientationByPlayerId(this.currentUserId);
-            console.log('Orientation' + this.orientation);
+            this.setColorToSecondPlayer();
         }
     }
 </script>
