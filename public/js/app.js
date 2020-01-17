@@ -1868,7 +1868,8 @@ __webpack_require__.r(__webpack_exports__);
       started: false,
       finished: false,
       orientation: 'white',
-      timer: null
+      timer: null,
+      delay: 500
     };
   },
   watch: {
@@ -1886,6 +1887,9 @@ __webpack_require__.r(__webpack_exports__);
   computed: {
     lastMove: function lastMove() {
       return this.localMoves[this.localMoves.length - 1]['move'];
+    },
+    isPositionRefresh: function isPositionRefresh() {
+      return this.checkIfCurrentUserHasTurn(this.positionInfo.turn);
     }
   },
   methods: {
@@ -1894,8 +1898,8 @@ __webpack_require__.r(__webpack_exports__);
         this.enableBoard();
       }
 
+      console.log('Opponent moves = ');
       this.positionInfo = data;
-      this.isPositionRefresh = false;
       this.currentMove = this.positionInfo.fen;
 
       if (this.positionInfo.fen !== this.lastMove) {
@@ -1910,20 +1914,20 @@ __webpack_require__.r(__webpack_exports__);
         }).then(function (response) {
           console.log(response.data);
         });
-      }
+      } // console.log('localMoves = ');
+      // console.log(this.localMoves);
+      // console.log('Current userId = ' + this.currentUserId);
+      // console.log('started = ' + this.started);
+      // console.log('First player id = ' + this.firstPlayerId);
+      // console.log('Second player id = ' + this.secondPlayerId);
+      // console.log('First player color = ' + this.firstPlayerColor);
+      // console.log('Second player color = ' + this.secondPlayerColor);
+      // console.log('MovesPHP = ' + this.movesPhp);
+      // console.log('Data = ');
+      // console.log(data);
+      // console.log('Turn = ' + this.positionInfo.turn);
+      // console.log('Is current player has turn = ' + this.checkIfCurrentUserHasTurn(this.positionInfo.turn));
 
-      console.log('localMoves = ');
-      console.log(this.localMoves);
-      console.log('Current userId = ' + this.currentUserId);
-      console.log('started = ' + this.started);
-      console.log('First player id = ' + this.firstPlayerId);
-      console.log('Second player id = ' + this.secondPlayerId);
-      console.log('First player color = ' + this.firstPlayerColor);
-      console.log('Second player color = ' + this.secondPlayerColor);
-      console.log('MovesPHP = ' + this.movesPhp);
-      console.log(data);
-      console.log('Turn = ' + this.positionInfo.turn);
-      console.log('Is current player has turn = ' + this.checkIfCurrentUserHasTurn(this.positionInfo.turn));
     },
     getCurrentUserColor: function getCurrentUserColor() {
       if (this.currentUserId == this.firstPlayerId) {
@@ -1935,18 +1939,23 @@ __webpack_require__.r(__webpack_exports__);
     updateData: function updateData() {
       var _this = this;
 
-      axios.get('/get-game/' + this.gameId).then(function (response) {
-        _this.secondPlayerId = response.data.secondPlayerId;
+      if (!this.isPositionRefresh) {
+        axios.get('/get-game/' + this.gameId).then(function (response) {
+          _this.secondPlayerId = response.data.secondPlayerId;
 
-        if (_this.localMoves === response.data.moves) {
-          console.log(response.data);
-          _this.isPositionRefresh = false;
-        } else {
-          console.log(response.data);
-          _this.localMoves = response.data.moves;
-          _this.currentMove = _this.lastMove;
-        }
-      });
+          if (_this.localMoves.length === response.data.moves.length) {
+            console.log('Position has no changes');
+          } else {
+            console.log(_this.localMoves);
+            console.log(response.data.moves);
+            _this.localMoves = response.data.moves;
+            _this.currentMove = _this.lastMove;
+          }
+        });
+      }
+    },
+    checkIfGameOver: function checkIfGameOver() {
+      return this.$refs.chessboard.game.game_over();
     },
     disableBoard: function disableBoard() {
       this.$refs.chessboard.board.state.draggable.enabled = false;
@@ -1995,11 +2004,13 @@ __webpack_require__.r(__webpack_exports__);
         this.secondPlayerId = this.currentUserId;
       }
 
-      axios.put('/game/' + this.gameId, {
-        'second_player_id': this.secondPlayerId
-      }).then(function (response) {
-        console.log(response.data);
-      });
+      if (this.secondPlayerId != 0) {
+        axios.put('/game/' + this.gameId, {
+          'second_player_id': this.secondPlayerId
+        }).then(function (response) {
+          console.log(response.data);
+        });
+      }
     },
     tryToStartGame: function tryToStartGame() {
       if (this.secondPlayerId != 0) {
@@ -2013,6 +2024,9 @@ __webpack_require__.r(__webpack_exports__);
           console.log(response.data);
         });
       }
+    },
+    getCurrentTurnColor: function getCurrentTurnColor() {
+      return this.$refs.chessboard.board.state.turnColor;
     }
   },
   mounted: function mounted() {
@@ -2022,11 +2036,11 @@ __webpack_require__.r(__webpack_exports__);
     console.log(this.$refs.chessboard);
     this.setRightOrientationByPlayerId(this.currentUserId);
 
-    if (this.checkIfCurrentUserHasTurn(this.$refs.chessboard.board.state.turnColor)) {
+    if (this.checkIfCurrentUserHasTurn(this.getCurrentTurnColor())) {
       this.enableBoard();
     } else this.disableBoard();
 
-    this.timer = setInterval(this.updateData, 1000);
+    this.timer = setInterval(this.updateData, this.delay); //console.log('game over ' + this.$refs.chessboard.game.in_checkmate());
   },
   created: function created() {
     this.setSecondPlayer();

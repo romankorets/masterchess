@@ -30,7 +30,8 @@
                 started: false,
                 finished: false,
                 orientation: 'white',
-                timer : null
+                timer : null,
+                delay : 500
             }
         },
         watch: {
@@ -48,7 +49,10 @@
         computed:{
             lastMove: function () {
                 return this.localMoves[this.localMoves.length - 1]['move'];
-            }
+            },
+            isPositionRefresh: function () {
+                return this.checkIfCurrentUserHasTurn(this.positionInfo.turn);
+            },
         },
 
         methods:{
@@ -56,8 +60,8 @@
                 if (this.checkIfCurrentUserIsPlayer()){
                     this.enableBoard();
                 }
+                console.log('Opponent moves = ');
                 this.positionInfo = data;
-                this.isPositionRefresh = false;
                 this.currentMove = this.positionInfo.fen;
                 if(this.positionInfo.fen !== this.lastMove){
                     this.localMoves.push({
@@ -72,18 +76,19 @@
                         console.log(response.data)
                     }));
                 }
-                console.log('localMoves = ');
-                console.log(this.localMoves);
-                console.log('Current userId = ' + this.currentUserId);
-                console.log('started = ' + this.started);
-                console.log('First player id = ' + this.firstPlayerId);
-                console.log('Second player id = ' + this.secondPlayerId);
-                console.log('First player color = ' + this.firstPlayerColor);
-                console.log('Second player color = ' + this.secondPlayerColor);
-                console.log('MovesPHP = ' + this.movesPhp);
-                console.log(data);
-                console.log('Turn = ' + this.positionInfo.turn);
-                console.log('Is current player has turn = ' + this.checkIfCurrentUserHasTurn(this.positionInfo.turn));
+                // console.log('localMoves = ');
+                // console.log(this.localMoves);
+                // console.log('Current userId = ' + this.currentUserId);
+                // console.log('started = ' + this.started);
+                // console.log('First player id = ' + this.firstPlayerId);
+                // console.log('Second player id = ' + this.secondPlayerId);
+                // console.log('First player color = ' + this.firstPlayerColor);
+                // console.log('Second player color = ' + this.secondPlayerColor);
+                // console.log('MovesPHP = ' + this.movesPhp);
+                // console.log('Data = ');
+                // console.log(data);
+                // console.log('Turn = ' + this.positionInfo.turn);
+                // console.log('Is current player has turn = ' + this.checkIfCurrentUserHasTurn(this.positionInfo.turn));
             },
 
             getCurrentUserColor(){
@@ -95,20 +100,25 @@
             },
 
             updateData(){
+                if (!this.isPositionRefresh) {
                     axios.get('/get-game/' + this.gameId).then(response => {
                             this.secondPlayerId = response.data.secondPlayerId;
-                            if (this.localMoves === response.data.moves) {
-                                console.log(response.data);
-                                this.isPositionRefresh = false;
+                            if (this.localMoves.length === response.data.moves.length) {
+                                console.log('Position has no changes');
                             } else {
-                                console.log(response.data);
+                                console.log(this.localMoves);
+                                console.log(response.data.moves);
                                 this.localMoves = response.data.moves;
                                 this.currentMove = this.lastMove;
                             }
                         }
                     )
+                }
             },
 
+            checkIfGameOver(){
+                return this.$refs.chessboard.game.game_over();
+            },
             disableBoard(){
                 this.$refs.chessboard.board.state.draggable.enabled = false;
                 this.$refs.chessboard.board.state.selectable.enabled = false;
@@ -161,11 +171,13 @@
                 if(this.currentUserId != this.firstPlayerId && this.secondPlayerId == 0){
                     this.secondPlayerId = this.currentUserId;
                 }
-                axios.put('/game/' + this.gameId,{
-                    'second_player_id': this.secondPlayerId,
-                }).then((response => {
-                    console.log(response.data)
-                }));
+                if (this.secondPlayerId != 0){
+                    axios.put('/game/' + this.gameId,{
+                        'second_player_id': this.secondPlayerId,
+                    }).then((response => {
+                        console.log(response.data)
+                    }));
+                }
             },
             tryToStartGame(){
                 if (this.secondPlayerId != 0){
@@ -178,6 +190,9 @@
                         console.log(response.data)
                     }));
                 }
+            },
+            getCurrentTurnColor(){
+               return this.$refs.chessboard.board.state.turnColor;
             }
         },
         mounted() {
@@ -186,10 +201,13 @@
             console.log('Chessboard = ');
             console.log(this.$refs.chessboard);
             this.setRightOrientationByPlayerId(this.currentUserId);
-            if (this.checkIfCurrentUserHasTurn(this.$refs.chessboard.board.state.turnColor)){
+            if (this.checkIfCurrentUserHasTurn(this.getCurrentTurnColor())){
                 this.enableBoard();
             } else this.disableBoard();
-            this.timer = setInterval(this.updateData, 1000);
+            this.timer = setInterval(this.updateData, this.delay);
+
+
+            //console.log('game over ' + this.$refs.chessboard.game.in_checkmate());
         },
         created() {
             this.setSecondPlayer();
