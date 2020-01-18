@@ -1845,8 +1845,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -1898,8 +1896,9 @@ __webpack_require__.r(__webpack_exports__);
         this.enableBoard();
       }
 
-      console.log('Opponent moves = ');
       this.positionInfo = data;
+      console.log('History ');
+      console.log(this.$refs.chessboard.game.history());
       this.currentMove = this.positionInfo.fen;
 
       if (this.positionInfo.fen !== this.lastMove) {
@@ -38159,18 +38158,11 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    { staticClass: "container" },
-    [
-      _c("chessboard", {
-        ref: "chessboard",
-        attrs: { fen: _vm.currentMove, orientation: _vm.orientation },
-        on: { onMove: _vm.handleMove }
-      })
-    ],
-    1
-  )
+  return _c("chessboard", {
+    ref: "chessboard",
+    attrs: { fen: _vm.currentMove, orientation: _vm.orientation },
+    on: { onMove: _vm.handleMove }
+  })
 }
 var staticRenderFns = []
 render._withStripped = true

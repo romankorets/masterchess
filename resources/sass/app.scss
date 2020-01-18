@@ -6,3 +6,79 @@
 
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
+
+.btn-menu {
+    color: #fff;
+    font-size: 30px;
+    margin: 5px;
+    width: 20em;
+    background-color: $metal;
+    border-color: $metal;
+}
+
+.btn-menu:hover {
+    color: #fff;
+    font-size: 30px;
+    margin: 5px;
+    width: 20em;
+    background-color: $metal;
+    border-color: $metal;
+    box-shadow: 0 0 5px 4px black;
+}
+
+.card {
+    box-shadow: 0 0 5px 4px black;
+    position: relative;
+    display: -webkit-box;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-image:  url("../img/bgtexture.jpg");
+
+    background-clip: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.25rem;
+}
+
+.card-header {
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    background-color: $metal;
+    color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+body {
+    margin: 0;
+    background-image: url("../img/bg.jpg");
+    background-size: 100%;
+    background-repeat: no-repeat;
+    font-family: "Nunito", sans-serif;
+    font-size: 0.9rem;
+    font-weight: 400;
+    line-height: 1.6;
+    color: white;
+    text-align: left;
+    background-color: black;
+}
+.table {
+    background-image: url("../img/bgtexture.jpg");
+    background-repeat: repeat;
+    box-shadow: 0 0 5px 4px black;
+    width: 100%;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.color_piker{
+    background-image: url("../img/bgtexture.jpg");
+    background-repeat: repeat;
+    box-shadow: 0 0 5px 4px black;
+}

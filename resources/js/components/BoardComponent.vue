@@ -1,7 +1,5 @@
 <template>
-    <div class="container" >
-        <chessboard ref="chessboard" @onMove="handleMove" :fen="currentMove" :orientation="orientation"/>
-    </div>
+    <chessboard ref="chessboard" @onMove="handleMove" :fen="currentMove" :orientation="orientation"/>
 </template>
 
 <script>
@@ -60,8 +58,10 @@
                 if (this.checkIfCurrentUserIsPlayer()){
                     this.enableBoard();
                 }
-                console.log('Opponent moves = ');
                 this.positionInfo = data;
+
+                console.log('History ');
+                console.log(this.$refs.chessboard.game.history());
                 this.currentMove = this.positionInfo.fen;
                 if(this.positionInfo.fen !== this.lastMove){
                     this.localMoves.push({
