@@ -10,6 +10,5 @@
 
             </board-component>
         </div>
-
     </div>
 @endsection
