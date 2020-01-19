@@ -19,6 +19,9 @@
                         <div class="row justify-content-center">
                             <a class="btn btn-menu" href="{{route('game.index')}}">List of games</a>
                         </div>
+                        <div class="row justify-content-center">
+                            <a class="btn btn-menu" href="{{url('/my-games')}}">My games</a>
+                        </div>
                 </div>
             </div>
         </div>

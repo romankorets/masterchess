@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Game;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,7 +16,7 @@ class GameController extends Controller
      */
     public function index()
     {
-        $games = Game::all()->where('finished', 'false');
+        $games = Game::all()->where('started', 'false');
         return view('game.index', [
             'games' => $games
         ]);
@@ -110,6 +111,27 @@ class GameController extends Controller
             'secondPlayerId' => $game->second_player_id,
             'moves' => $game->moves,
         ]);
+    }
+
+    /**
+     * Show current games of user
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function getMyGames()
+    {
+        $user = User::findOrFail(Auth::user()->id);
+          $gamesAsFirstPlayer = Game::all()
+              ->where('first_player_id', $user->id)
+              ->where('finished', false)
+              ->where('started', true);
+          $gamesAsSecondPlayer = Game::all()
+              ->where('second_player_id', $user->id)
+              ->where('finished', false)
+              ->where('started', true);
+        return view('myGames',
+            ['gamesAsFirstPlayer' => $gamesAsFirstPlayer,
+             'gamesAsSecondPlayer' => $gamesAsSecondPlayer]);
     }
 
     /**

@@ -23,3 +23,5 @@ Route::resource('game', 'GameController',
     ['except' => ['edit']])->middleware('auth');
 
 Route::get('/get-game/{id}', 'GameController@getGame')->middleware('auth');
+
+Route::get('/my-games', 'GameController@getMyGames')->middleware('auth');
